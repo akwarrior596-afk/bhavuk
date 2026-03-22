@@ -1,0 +1,30 @@
+{
+  "name": "bhavuk",
+  "version": "1.0.0",
+  "description": "create a website using html java css for a business",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server-prod.js",
+    "dev": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/akwarrior596-afk/bhavuk.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/akwarrior596-afk/bhavuk/issues"
+  },
+  "homepage": "https://github.com/akwarrior596-afk/bhavuk#readme",
+  "dependencies": {
+    "body-parser": "^2.2.2",
+    "express": "^5.2.1",
+    "nodemailer": "^8.0.3",
+    "mongoose": "^8.0.0",
+    "dotenv": "^16.0.0"
+  }
+}

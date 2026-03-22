@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - BK Group</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        form { max-width: 600px; margin: auto; }
+        label { display: block; margin-top: 10px; }
+        input, textarea { width: 100%; padding: 8px; margin-top: 5px; }
+        button { padding: 10px 20px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Tell Us More About Yourself</h1>
+    <form action="/profile" method="POST">
+        <input type="hidden" name="id" value="<%= id %>"> <!-- This needs to be dynamic -->
+        <label for="about">About Yourself:</label>
+        <textarea name="about" id="about" rows="5" required></textarea>
+        <label for="salary">Desired Salary:</label>
+        <input type="number" name="salary" id="salary" required>
+        <button type="submit">Submit</button>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('id');
+        document.querySelector('input[name="id"]').value = id;
+    </script>

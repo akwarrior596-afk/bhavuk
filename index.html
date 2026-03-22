@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BK Group</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+        }
+        nav {
+            background-color: #444;
+            padding: 0.5rem;
+        }
+        nav a {
+            color: white;
+            margin: 0 1rem;
+            text-decoration: none;
+        }
+        section {
+            padding: 2rem;
+            margin: 1rem;
+            background-color: white;
+            border-radius: 8px;
+        }
+        footer {
+            text-align: center;
+            padding: 1rem;
+            background-color: #333;
+            color: white;
+        }
+        .review {
+            border-bottom: 1px solid #ddd;
+            padding: 1rem 0;
+            margin-bottom: 1rem;
+        }
+        .review:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Welcome to BK Group</h1>
+    </header>
+    <nav>
+        <a href="#about">About</a>
+        <a href="#services">Services</a>
+        <a href="#contact">Contact</a>
+        <a href="#join">Join Us</a>
+        <a href="#invest">Invest</a>
+    </nav>
+    <section id="about">
+        <h2>About Us</h2>
+        <p>We are BK Group, a dedicated business providing quality services to our customers. Our mission is to deliver excellence in everything we do.</p>
+    </section>
+    <section id="services">
+        <h2>Our Services</h2>
+        <ul>
+            <li>Service 1</li>
+            <li>Service 2</li>
+            <li>Service 3</li>
+        </ul>
+    </section>
+    <section id="reviews">
+        <h2>Customer Reviews</h2>
+        <div id="reviews-list"></div>
+        <h3>Leave a Review</h3>
+        <form id="review-form">
+            <label for="review-name">Name:</label><br>
+            <input type="text" id="review-name" name="name" required><br><br>
+            <label for="review-email">Email:</label><br>
+            <input type="email" id="review-email" name="email" required><br><br>
+            <label for="review-rating">Rating (1-5):</label><br>
+            <select id="review-rating" name="rating" required>
+                <option value="5">5 - Excellent</option>
+                <option value="4">4 - Very Good</option>
+                <option value="3">3 - Good</option>
+                <option value="2">2 - Fair</option>
+                <option value="1">1 - Poor</option>
+            </select><br><br>
+            <label for="review-comment">Comment:</label><br>
+            <textarea id="review-comment" name="comment" rows="4" cols="50" required></textarea><br><br>
+            <input type="submit" value="Submit Review">
+        </form>
+    </section>
+    <section id="contact">
+        <h2>Contact Us</h2>
+        <p>Email: info@bkgroup.com</p>
+        <p>Phone: (123) 456-7890</p>
+    </section>
+    <section id="member-access">
+        <h2>Member Area</h2>
+        <p>Click below to go to member chat & suggestions</p>
+        <a href="/go-member" style="display:inline-block;padding:10px 20px;background:#333;color:#fff;border-radius:6px;text-decoration:none;">Go to Member Page</a>
+    </section>
+    <section id="join">
+        <h2>Join BK Group</h2>
+        <form action="/join" method="POST">
+            <label for="name">Name:</label><br>
+            <input type="text" id="name" name="name" required><br><br>
+            <label for="phone">Phone Number:</label><br>
+            <input type="tel" id="phone" name="phone" required><br><br>
+            <label for="email">Email:</label><br>
+            <input type="email" id="email" name="email" required><br><br>
+            <label for="qualifications">Qualifications:</label><br>
+            <textarea id="qualifications" name="qualifications" rows="4" cols="50" required></textarea><br><br>
+            <label for="role">Desired Role:</label><br>
+            <input type="text" id="role" name="role" required><br><br>
+            <input type="submit" value="Submit Application">
+        </form>
+    </section>
+    <section id="invest">
+        <h2>Invest in BK Group</h2>
+        <h3>Investor Application Form</h3>
+        <form action="/invest" method="POST">
+            <label for="amount">How much money are you investing?</label><br>
+            <input type="number" id="amount" name="amount" required><br><br>
+            
+            <label for="investmentType">Will it be a one-time investment or in parts?</label><br>
+            <select name="investmentType" id="investmentType" required>
+                <option value="one-time">One-time</option>
+                <option value="parts">In parts</option>
+            </select><br><br>
+            
+            <label for="expectation">What do you expect in return (profit, shares, control)?</label><br>
+            <textarea id="expectation" name="expectation" rows="3" required></textarea><br><br>
+            
+            <label for="equity">How much equity (ownership) do you want? (e.g., 10%, 20%)</label><br>
+            <input type="text" id="equity" name="equity" required><br><br>
+            
+            <label for="investorType">Will you be a silent investor or active in decisions?</label><br>
+            <select name="investorType" id="investorType" required>
+                <option value="silent">Silent</option>
+                <option value="active">Active</option>
+            </select><br><br>
+            
+            <label for="returnTimeline">When do you expect returns?</label><br>
+            <input type="text" id="returnTimeline" name="returnTimeline" required><br><br>
+            
+            <label for="returnType">Do you want: Monthly profit or long-term growth?</label><br>
+            <select name="returnType" id="returnType" required>
+                <option value="monthly">Monthly profit</option>
+                <option value="long-term">Long-term growth</option>
+            </select><br><br>
+            
+            <label for="experience">Have you invested in other companies before?</label><br>
+            <select name="experience" id="experience" required>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+            </select><br><br>
+            
+            <label>Can you help with:</label><br>
+            <input type="checkbox" id="helpAdvice" name="helpAdvice" value="yes">
+            <label for="helpAdvice">Business advice</label><br>
+            <input type="checkbox" id="helpConnections" name="helpConnections" value="yes">
+            <label for="helpConnections">Connections</label><br>
+            <input type="checkbox" id="helpMarketing" name="helpMarketing" value="yes">
+            <label for="helpMarketing">Marketing</label><br><br>
+            
+            <label for="exitPlan">When and how will you exit the company? (e.g., sell shares later, take back money after years)</label><br>
+            <textarea id="exitPlan" name="exitPlan" rows="3" required></textarea><br><br>
+            
+            <label for="location">From where are you?</label><br>
+            <input type="text" id="location" name="location" required><br><br>
+            
+            <input type="submit" value="Submit Investment Interest">
+        </form>
+    </section>
+    <footer>
+        <p>&copy; 2023 BK Group. All rights reserved.</p>
+        <p><a href="/admin">Owner Admin</a></p>
+    </footer>
+
+    <script>
+        // Simple human verification (not secret code)
+        const humanVerified = sessionStorage.getItem('bkgroup_human_verified');
+        if (!humanVerified) {
+            const answer = prompt('Please type HUMAN to verify you are not a bot:');
+            if (answer && answer.trim().toLowerCase() === 'human') {
+                sessionStorage.setItem('bkgroup_human_verified', 'true');
+            } else {
+                alert('Verification failed. You cannot browse the site right now.');
+                window.location.href = 'https://www.google.com';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Track visitor source
+            const source = new URLSearchParams(window.location.search).get('source') || 'direct';
+            const trackData = {
+                source,
+                referrer: document.referrer || 'none',
+                pathname: window.location.pathname,
+                userAgent: navigator.userAgent
+            };
+            fetch('/track-visit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(trackData)
+            }).catch(console.error);
+
+            // Removed click alerts for sections
+
+            // Handle form submission
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(event) {
+                // No prevent default, let it submit to server
+            });
+
+            // Load and display reviews
+            loadReviews();
+
+            // Handle review form submission
+            const reviewForm = document.getElementById('review-form');
+            reviewForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const formData = new FormData(reviewForm);
+                const data = {
+                    name: formData.get('name'),
+                    email: formData.get('email'),
+                    rating: formData.get('rating'),
+                    comment: formData.get('comment')
+                };
+                fetch('/review', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.text())
+                .then(result => {
+                    alert(result);
+                    reviewForm.reset();
+                    loadReviews(); // Reload reviews after submission
+                })
+                .catch(error => {
+                    console.error('Error submitting review:', error);
+                    alert('Error submitting review');
+                });
+            });
+        });
+
+        function loadReviews() {
+            fetch('/api/reviews')
+            .then(response => response.json())
+            .then(reviews => {
+                const reviewsList = document.getElementById('reviews-list');
+                reviewsList.innerHTML = '';
+                if (reviews.length === 0) {
+                    reviewsList.innerHTML = '<p>No reviews yet. Be the first to leave one!</p>';
+                } else {
+                    reviews.forEach(review => {
+                        const reviewDiv = document.createElement('div');
+                        reviewDiv.className = 'review';
+                        reviewDiv.innerHTML = `
+                            <h4>${review.name} - ${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</h4>
+                            <p>${review.comment}</p>
+                            <small>${new Date(review.timestamp).toLocaleDateString()}</small>
+                        `;
+                        reviewsList.appendChild(reviewDiv);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error loading reviews:', error);
+            });
+        }
+    </script>
+</body>
+</html>

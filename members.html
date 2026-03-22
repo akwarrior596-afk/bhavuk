@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Members - BK Group</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .member { border: 1px solid #ccc; padding: 10px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Company Members</h1>
+    <div id="members"></div>
+
+    <h2>Income Offers</h2>
+    <div id="offers"></div>
+
+    <h2>Suggestion Box</h2>
+    <form id="suggestForm">
+        <label for="suggestion">Suggestion:</label><br>
+        <textarea id="suggestion" name="suggestion" rows="4" cols="50" required></textarea><br>
+        <label for="type">Type:</label>
+        <select name="type" id="type">
+            <option value="product">Product</option>
+            <option value="contract">Contract</option>
+        </select><br>
+        <button type="submit">Submit Suggestion</button>
+    </form>
+
+    <script>
+        let membersById = {};
+
+        function loadOffers() {
+            fetch('/api/offers')
+                .then(res => res.json())
+                .then(offers => {
+                    const offersContainer = document.getElementById('offers');
+                    offersContainer.innerHTML = '';
+                    offers.filter(o => o.status === 'pending').forEach(offer => {
+                        const member = membersById[offer.memberId];
+                        const div = document.createElement('div');
+                        div.innerHTML = `
+                            <p><strong>Offer for ${member ? member.name : 'Member ' + offer.memberId}</strong></p>
+                            <p>Amount: $${offer.income}</p>
+                            <button onclick="respondOffer(${offer.id}, true)">Accept</button>
+                            <button onclick="respondOffer(${offer.id}, false)">Reject</button>
+                        `;
+                        offersContainer.appendChild(div);
+                    });
+                });
+        }
+
+        function respondOffer(offerId, accept) {
+            fetch('/respond-offer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ offerId, accept })
+            }).then(res => res.text()).then(message => {
+                alert(message);
+                loadOffers();
+            });
+        }
+
+        fetch('/api/members')
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById('members');
+                data.forEach(member => {
+                    membersById[member.id] = member;
+                    const div = document.createElement('div');
+                    div.className = 'member';
+                    div.innerHTML = `
+                        <p><strong>${member.name}</strong> - ${member.email}</p>
+                        <p>Role: ${member.role}</p>
+                        <p>About: ${member.about || 'N/A'}</p>
+                    `;
+                    container.appendChild(div);
+                });
+                loadOffers();
+            });
+
+        document.getElementById('suggestForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            fetch('/suggest', {
+                method: 'POST',
+                body: formData
+            }).then(res => res.text()).then(alert);
+        });
+    </script>
+</body>
+</html>

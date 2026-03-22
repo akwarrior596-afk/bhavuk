@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profit & Loss Calculator - BK Group</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        form { max-width: 400px; margin: auto; }
+        input { display: block; width: 100%; margin: 10px 0; padding: 8px; }
+        button { padding: 10px 20px; }
+        #result { margin-top: 20px; font-size: 18px; }
+    </style>
+</head>
+<body>
+    <h1>Profit & Loss Calculator</h1>
+    <form id="pnlForm">
+        <label for="revenue">Total Revenue:</label>
+        <input type="number" id="revenue" name="revenue" required>
+
+        <label for="expenses">Total Expenses:</label>
+        <input type="number" id="expenses" name="expenses" required>
+
+        <button type="submit">Calculate</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+        // Password protection
+        const password = prompt('Enter admin password:');
+        if (password !== 'admin123') {
+            alert('Incorrect password');
+            window.location.href = '/';
+        }
+
+        // Rest of the scripts...
+        document.getElementById('pnlForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const revenue = parseFloat(this.revenue.value);
+            const expenses = parseFloat(this.expenses.value);
+            const profit = revenue - expenses;
+            const resultDiv = document.getElementById('result');
+            if (profit >= 0) {
+                resultDiv.innerHTML = `<p style="color: green;">Profit: $${profit.toFixed(2)}</p>`;
+            } else {
+                resultDiv.innerHTML = `<p style="color: red;">Loss: $${(-profit).toFixed(2)}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>

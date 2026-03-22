@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner Dashboard - BK Group</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .section { margin: 20px 0; padding: 10px; border: 1px solid #ccc; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        button { padding: 5px 10px; margin: 2px; }
+        form { margin: 10px 0; }
+        input, textarea, select { margin: 5px; padding: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Owner Dashboard - BK Group</h1>
+    <nav>
+        <a href="/hr">HR - Hiring & Firing</a> |
+        <a href="/pnl">Profit & Loss Calculator</a>
+    </nav>
+
+    <div class="section">
+        <h2>Create Post</h2>
+        <form id="createPostForm">
+            <input type="text" name="title" placeholder="Post Title" required>
+            <textarea name="description" placeholder="Description" required></textarea>
+            <input type="text" name="requiredQualifications" placeholder="Required Qualifications" required>
+            <input type="number" name="numOpenings" placeholder="Number of openings" min="1" value="1" required>
+            <button type="submit">Create Post</button>
+        </form>
+    </div>
+
+    <div class="section">
+        <h2>Posts</h2>
+        <div id="posts"></div>
+    </div>
+
+    <div class="section">
+        <h2>Members</h2>
+        <p>Total Members: <span id="totalMembers"></span></p>
+        <div id="members"></div>
+    </div>
+
+    <div class="section">
+        <h2>Investors</h2>
+        <div id="investors"></div>
+    </div>
+
+    <div class="section">
+        <h2>Income</h2>
+        <div id="income"></div>
+        <form id="updateIncomeForm">
+            <select name="memberId" id="incomeMemberId" required></select>
+            <input type="number" name="income" placeholder="Income" required>
+            <button type="submit">Update Income</button>
+        </form>
+    </div>
+
+    <div class="section">
+        <h2>Profit</h2>
+        <div id="profit">Loading...</div>
+    </div>
+
+    <div class="section">
+        <h2>AI Assistant</h2>
+        <p>Ask the admin AI to recommend assignments or status checks.</p>
+        <input type="text" id="aiQuery" placeholder="e.g., suggest work for unassigned members" style="width: 70%;" />
+        <button id="aiAsk">Ask AI</button>
+        <div id="aiResponse" style="margin-top: 10px; padding: 10px; border: 1px solid #aaa; min-height: 60px;">Awaiting question...</div>
+    </div>
+
+    <div class="section">
+        <h2>Visitor Tracking</h2>
+        <p>Total visits: <span id="totalVisits">Loading...</span></p>
+        <div id="visitorSources"></div>
+    </div>
+
+    <div class="section">
+        <h2>AI Assistant</h2>
+        <textarea id="aiQuery" placeholder="Ask for advice on managing the site, assigning work, etc." rows="3"></textarea><br>
+        <button onclick="getAIAdvice()">Get AI Advice</button>
+        <div id="aiResponse"></div>
+    </div>
+
+    <script>
+        // Password protection
+        const password = prompt('Enter admin password:');
+        let isFullAdmin = false;
+        let isSecondOwner = false;
+        if (password === 'admin123') {
+            isFullAdmin = true;
+        } else if (password === 'owner456') {
+            isSecondOwner = true;
+        } else {
+            alert('Incorrect password');
+            window.location.href = '/';
+        }
+
+        // Rest of the scripts...
+        function loadPosts() {
+            fetch('/api/posts')
+                .then(res => res.json())
+                .then(data => {
+                    localStorage.setItem('cachedPosts', JSON.stringify(data));
+                    const container = document.getElementById('posts');
+                    container.innerHTML = '';
+                    data.forEach(post => {
+                        const div = document.createElement('div');
+                        div.innerHTML = `
+                            <p><strong>${post.title}</strong> - ${post.filled ? 'Filled by ' + post.assignedTo : 'Open'}</p>
+                            <p>${post.description}</p>                            <p>Openings: ${post.numOpenings || 1}</p>
+                            <p>Access URL: <a href="/post/${post.id}" target="_blank">/post/${post.id}</a></p>                            ${!post.filled ? `<select id="assign-${post.id}"></select><button onclick="assign(${post.id})">Assign</button>` : ''}
+                        `;
+                        container.appendChild(div);
+                    });
+                    loadMembersForAssign();
+                });
+        }
+
+        // Create post
+        document.getElementById('createPostForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            fetch('/create-post', { method: 'POST', body: formData })
+                .then(res => res.text())
+                .then(msg => {
+                    alert(msg);
+                    this.reset();
+                    loadPosts();
+                });
+        });
+
+        // Load posts
+        loadPosts();
+
+        function loadMembersForAssign() {
+            fetch('/api/members')
+                .then(res => res.json())
+                .then(members => {
+                    localStorage.setItem('cachedMembers', JSON.stringify(members));
+                    document.querySelectorAll('select[id^="assign-"]').forEach(select => {
+                        members.forEach(member => {
+                            const option = document.createElement('option');
+                            option.value = member.id;
+                            option.text = member.name;
+                            select.appendChild(option);
+                        });
+                    });
+                });
+        }
+
+        function assign(postId) {
+            const memberId = document.getElementById(`assign-${postId}`).value;
+            fetch('/assign-post', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ postId, memberId }) })
+                .then(() => location.reload());
+        }
+
+        // Load members
+        fetch('/api/members')
+            .then(res => res.json())
+            .then(data => {
+                localStorage.setItem('cachedMembers', JSON.stringify(data));
+                data.sort((a, b) => a.id - b.id); // Sort by id, first is first owner
+                const firstOwnerId = data[0]?.id;
+                document.getElementById('totalMembers').textContent = data.length;
+                const container = document.getElementById('members');
+                data.forEach(member => {
+                    const canFire = isFullAdmin || (isSecondOwner && member.id !== firstOwnerId);
+                    const div = document.createElement('div');
+                    div.innerHTML = `
+                        <p><strong>${member.name}</strong> - ${member.email} - Role: ${member.role || 'N/A'}</p>
+                        ${canFire ? `<button onclick="fire(${member.id})">Fire</button>` : ''}
+                        <select id="assignPost-${member.id}"></select><button onclick="assignPostToMember(${member.id})">Assign/Change Post</button>
+                    `;
+                    container.appendChild(div);
+                });
+                loadPostsForMembers();
+            });
+
+        // Load investors
+        fetch('/api/investors')
+            .then(res => res.json())
+            .then(investors => {
+                const container = document.getElementById('investors');
+                investors.forEach(inv => {
+                    const div = document.createElement('div');
+                    div.innerHTML = `
+                        <p><strong>Investor ${inv.id}</strong> - Amount: $${inv.amount} - Location: ${inv.location}</p>
+                        <p>Investment Type: ${inv.investmentType} - Expectation: ${inv.expectation}</p>
+                        <p>Equity: ${inv.equity} - Investor Type: ${inv.investorType}</p>
+                        <p>Return Timeline: ${inv.returnTimeline} - Return Type: ${inv.returnType}</p>
+                        <p>Experience: ${inv.experience} - Help: Advice: ${inv.helpAdvice}, Connections: ${inv.helpConnections}, Marketing: ${inv.helpMarketing}</p>
+                        <p>Exit Plan: ${inv.exitPlan}</p>
+                    `;
+                    container.appendChild(div);
+                });
+            });
+
+        function loadPostsForMembers() {
+            fetch('/api/posts')
+                .then(res => res.json())
+                .then(posts => {
+                    fetch('/api/members')
+                        .then(res => res.json())
+                        .then(members => {
+                            document.querySelectorAll('select[id^="assignPost-"]').forEach(select => {
+                                const memberId = select.id.split('-')[1];
+                                const member = members.find(m => m.id == memberId);
+                                const currentPostId = posts.find(p => p.assignedTo == memberId)?.id;
+                                select.innerHTML = '<option value="">Select Post</option>';
+                                posts.forEach(post => {
+                                    if (!post.filled || post.assignedTo == memberId) {
+                                        const option = document.createElement('option');
+                                        option.value = post.id;
+                                        option.text = post.title;
+                                        if (post.id == currentPostId) option.selected = true;
+                                        select.appendChild(option);
+                                    }
+                                });
+                            });
+                        });
+                });
+        }
+
+        function assignPostToMember(memberId) {
+            const postId = document.getElementById(`assignPost-${memberId}`).value;
+            if (!postId) {
+                alert('Please select a post');
+                return;
+            }
+            fetch('/assign-post', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ postId, memberId }) })
+                .then(() => location.reload());
+        }
+
+        function fire(id) {
+            fetch('/fire-member', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ memberId: id }) })
+                .then(() => location.reload());
+        }
+
+        // Load income
+        Promise.all([fetch('/api/income'), fetch('/api/members')])
+            .then(responses => Promise.all(responses.map(r => r.json())))
+            .then(([incomes, members]) => {
+                const container = document.getElementById('income');
+                incomes.forEach(inc => {
+                    const member = members.find(m => m.id == inc.memberId);
+                    container.innerHTML += `<p>${member ? member.name : 'Unknown'}: $${inc.income}</p>`;
+                });
+            });
+
+        // Load profit
+        fetch('/api/profit')
+            .then(res => res.json())
+            .then(profitData => {
+                document.getElementById('profit').textContent = `Total Profit from investments: $${profitData.total || 0}`;
+            });
+
+        // Load offer responses
+        fetch('/api/offers')
+            .then(res => res.json())
+            .then(offers => {
+                const offersContainer = document.getElementById('offerResponses');
+                offersContainer.innerHTML = '';
+                offers.forEach(offer => {
+                    offersContainer.innerHTML += `<p>Offer ${offer.id} for member ${offer.memberId}: ${offer.status} (${offer.response || 'No response yet'})</p>`;
+                });
+            });
+
+        // Load visitor stats
+        fetch('/api/visitors')
+            .then(res => res.json())
+            .then(visitors => {
+                document.getElementById('totalVisits').textContent = visitors.length;
+                const sources = visitors.reduce((acc, v) => {
+                    const key = v.source || 'direct';
+                    acc[key] = (acc[key] || 0) + 1;
+                    return acc;
+                }, {});
+                const sourcesContainer = document.getElementById('visitorSources');
+                sourcesContainer.innerHTML = '<ul>' + Object.entries(sources).map(([s, c]) => `<li>${s}: ${c}</li>`).join('') + '</ul>';
+            });
+
+        function getAIAdvice() {
+            const query = document.getElementById('aiQuery').value;
+            if (!query.trim()) return;
+            document.getElementById('aiResponse').innerHTML = 'Thinking...';
+            fetch('/ai-advice', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query })
+            })
+            .then(res => res.text())
+            .then(advice => {
+                document.getElementById('aiResponse').innerHTML = advice;
+            })
+            .catch(err => {
+                document.getElementById('aiResponse').innerHTML = 'Error getting advice.';
+            });
+        }
+
+        function aiAssistant(query) {
+            const lower = query.toLowerCase();
+            if (!query.trim()) {
+                return 'Please type something to ask the AI assistant.';
+            }
+
+            if (lower.includes('unassigned') || lower.includes('idle') || lower.includes('role')) {
+                const members = JSON.parse(localStorage.getItem('cachedMembers') || '[]');
+                const posts = JSON.parse(localStorage.getItem('cachedPosts') || '[]');
+                const unassignedMembers = members.filter(m => !m.role || m.role === 'N/A');
+                const openPosts = posts.filter(p => !p.filled);
+
+                if (!unassignedMembers.length || !openPosts.length) {
+                    return 'No unassigned members or open posts available right now.';
+                }
+
+                const suggestions = unassignedMembers.slice(0, openPosts.length).map((m, i) => `${m.name} => ${openPosts[i].title}`);
+                return 'Suggested assignments:\n' + suggestions.join('\n');
+            }
+
+            if (lower.includes('status') || lower.includes('overview')) {
+                const members = JSON.parse(localStorage.getItem('cachedMembers') || '[]');
+                const posts = JSON.parse(localStorage.getItem('cachedPosts') || '[]');
+                const filled = posts.filter(p => p.filled).length;
+                const open = posts.length - filled;
+                return `Posts: ${posts.length} (open ${open}, filled ${filled}), Members: ${members.length}`;
+            }
+
+            return 'AI can suggest assignments, status and role matching. Try: "suggest roles for idle members"';
+        }
+
+        document.getElementById('aiAsk').addEventListener('click', () => {
+            const query = document.getElementById('aiQuery').value;
+            const answer = aiAssistant(query);
+            document.getElementById('aiResponse').innerText = answer;
+        });
+
+        function loadMembersForIncome() {
+            fetch('/api/members')
+                .then(res => res.json())
+                .then(members => {
+                    const select = document.getElementById('incomeMemberId');
+                    members.forEach(member => {
+                        const option = document.createElement('option');
+                        option.value = member.id;
+                        option.text = member.name;
+                        select.appendChild(option);
+                    });
+                });
+        }
+
+        // Update income
+        document.getElementById('updateIncomeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            fetch('/update-income', { method: 'POST', body: formData })
+                .then(res => res.text()).then(alert);
+        });
+    </script>
+</body>
+</html>
